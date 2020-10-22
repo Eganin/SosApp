@@ -8,6 +8,7 @@ import android.provider.Settings;
 
 import androidx.annotation.NonNull;
 
+import com.softdesign.sosapplication.mvp.contacts.ContactView;
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.map.CameraListener;
 import com.yandex.mapkit.map.CameraPosition;
@@ -24,6 +25,7 @@ public class MapPresenter {
     public MapPresenter(MapModel model) {
         this.model = model;
     }
+
 
     public void attachView(MapYandexView view) {
         this.view = view;
@@ -49,11 +51,20 @@ public class MapPresenter {
         view.mapView.getMap().addCameraListener(cameraListener);
     }
 
-    public void openSettings(){
+    public void openSettings() {
         Intent appSettingsIntent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                 Uri.parse("package:" + view.getPackageName()));
 
         view.startActivityForResult(appSettingsIntent, 222);
+    }
+
+    public void addContact() {
+        Intent intent = new Intent(view, ContactView.class);
+        view.startActivity(intent);
+    }
+
+    public void sosMailingContacts() {
+
     }
 
 

@@ -97,14 +97,14 @@ public class MapYandexView extends AppCompatActivity {
         findViewById(R.id.addContact).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                presenter.addContact();
             }
         });
 
         findViewById(R.id.SOSButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                presenter.sosMailingContacts();
             }
         });
     }
@@ -116,6 +116,7 @@ public class MapYandexView extends AppCompatActivity {
 
         if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
             // перемещение камеры по координатам
+            presenter.attachView(MapYandexView.this);
             presenter.loadYandexMap();
         } else {
             ActivityCompat.requestPermissions(MapYandexView.this, new String[]{
@@ -125,7 +126,7 @@ public class MapYandexView extends AppCompatActivity {
 
     }
 
-    public void showSnackBar(String message) {
+    public  void showSnackBar(String message) {
         Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_LONG).show();
     }
 
