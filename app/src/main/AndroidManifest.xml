@@ -11,6 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".mvp.recovery.RecoveryView"></activity>
+        <activity android:name=".mvp.map.MapYandexView"></activity>
+        <activity android:name=".mvp.registration.RegistrationView"></activity>
         <activity android:name=".mvp.auth.AuthView">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

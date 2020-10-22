@@ -2,9 +2,8 @@ package com.softdesign.sosapplication.mvp.auth;
 
 import android.content.Intent;
 
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.softdesign.sosapplication.mvp.map.MapView;
+import com.softdesign.sosapplication.mvp.map.MapYandexView;
+import com.softdesign.sosapplication.mvp.recovery.RecoveryView;
 import com.softdesign.sosapplication.mvp.registration.RegistrationView;
 
 public class AuthPresenter {
@@ -30,12 +29,12 @@ public class AuthPresenter {
     }
 
     public void handlerRecyclerButton() {
-        Intent intent = new Intent(view, RecyclerView.class);
+        Intent intent = new Intent(view, RecoveryView.class);
         view.startActivity(intent);
     }
 
     public void handlerAuthButton() {
-        Intent intent = new Intent(view, MapView.class);
+        Intent intent = new Intent(view, MapYandexView.class);
         view.startActivity(intent);
     }
 }

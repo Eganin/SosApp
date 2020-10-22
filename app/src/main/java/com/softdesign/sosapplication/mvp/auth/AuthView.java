@@ -15,12 +15,19 @@ public class AuthView extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.auth_view);
+        init();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         presenter.detachView();
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        presenter.attachView(AuthView.this);
     }
 
     private void init() {
