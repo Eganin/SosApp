@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">SosApplication</string>
+    <string name="sigin_in_text">Войти</string>
+    <string name="sign_in_email">Email</string>
+    <string name="sign_in_password">Пароль</string>
+    <string name="recycler_password_text">Забыли пароль</string>
 </resources>
