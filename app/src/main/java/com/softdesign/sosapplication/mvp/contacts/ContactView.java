@@ -1,6 +1,9 @@
 package com.softdesign.sosapplication.mvp.contacts;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
@@ -17,6 +20,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.softdesign.sosapplication.R;
 import com.softdesign.sosapplication.utils.adapters.ContactAdapter;
 import com.softdesign.sosapplication.utils.common.ConstantManager;
+import com.softdesign.sosapplication.utils.managers.DataManager;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -42,6 +46,7 @@ public class ContactView extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         presenter.attachView(ContactView.this);
+
         Set<String> contacts = getContacts();
         initRecyclerView(contacts);
     }
@@ -65,7 +70,7 @@ public class ContactView extends AppCompatActivity {
     private void initRecyclerView(Set<String> contacts) {
         recyclerView = findViewById(R.id.contactsRecyclerView);
         recyclerView.setHasFixedSize(true);
-        adapter = new ContactAdapter(contacts , getApplicationContext());
+        adapter = new ContactAdapter(contacts , getApplicationContext(),ContactView.this);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(layoutManager);
@@ -111,5 +116,29 @@ public class ContactView extends AppCompatActivity {
                         presenter.openSettings();
                     }
                 }).show();
+    }
+
+    protected Dialog onCreateDialog(int id) {
+        if (id == ConstantManager.DIALOG_EXIT) {
+            AlertDialog.Builder adb = new AlertDialog.Builder(this);
+            adb.setTitle("Контакт добавлен в рассылку");
+            adb.setPositiveButton(R.string.yes_add_contact, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    presenter.saveBooleanShowDialogContact(true);
+                }
+            });
+
+            adb.setNegativeButton(R.string.cancel_add_contact, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    presenter.saveBooleanShowDialogContact(false);
+                    dialog.cancel();
+                }
+            });
+
+            return adb.create();
+        }
+        return super.onCreateDialog(id);
     }
 }

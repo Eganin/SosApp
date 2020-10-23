@@ -1,6 +1,9 @@
 package com.softdesign.sosapplication.mvp.map;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
@@ -75,10 +78,18 @@ public class MapYandexView extends AppCompatActivity {
                 } else {
                     showSnackBarPermission("Для работы приложения необходимы разрешения");
                 }
+
+            case ConstantManager.REQUEST_CODE_SEND_SMS:
+                if (grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    showDialog(ConstantManager.DIALOG_SOS_EXIT);
+                } else {
+                    showSnackBarPermission("Для работы приложения необходимы разрешения");
+                }
         }
     }
 
-    private void MapKitFactoryInit(){
+    private void MapKitFactoryInit() {
         MapKitFactory.setApiKey(API_KEY);
         MapKitFactory.initialize(MapYandexView.this);
     }
@@ -93,7 +104,7 @@ public class MapYandexView extends AppCompatActivity {
         viewMap();
     }
 
-    private void clickerFloatingButton(){
+    private void clickerFloatingButton() {
         findViewById(R.id.addContact).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,7 +115,14 @@ public class MapYandexView extends AppCompatActivity {
         findViewById(R.id.SOSButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presenter.sosMailingContacts();
+                if (ActivityCompat.checkSelfPermission(MapYandexView.this, Manifest.permission.SEND_SMS)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    showDialog(ConstantManager.DIALOG_SOS_EXIT);
+                } else {
+                    ActivityCompat.requestPermissions(MapYandexView.this,
+                            new String[]{Manifest.permission.SEND_SMS},
+                            ConstantManager.REQUEST_CODE_SEND_SMS);
+                }
             }
         });
     }
@@ -126,7 +144,7 @@ public class MapYandexView extends AppCompatActivity {
 
     }
 
-    public  void showSnackBar(String message) {
+    public void showSnackBar(String message) {
         Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_LONG).show();
     }
 
@@ -140,6 +158,29 @@ public class MapYandexView extends AppCompatActivity {
                 }).show();
     }
 
+    protected Dialog onCreateDialog(int id){
+        if(id == ConstantManager.DIALOG_SOS_EXIT){
+            AlertDialog.Builder adb = new AlertDialog.Builder(this);
+            adb.setTitle("Послать сигнал SOS?");
+            adb.setPositiveButton(R.string.yes_add_contact, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    presenter.sosMailingContacts();
+                }
+            });
+
+            adb.setNegativeButton(R.string.cancel_add_contact, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            return adb.create();
+        }
+
+        return super.onCreateDialog(id);
+    }
 
 
 

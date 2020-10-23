@@ -1,14 +1,21 @@
 package com.softdesign.sosapplication.mvp.map;
 
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.provider.Settings;
+import android.telephony.SmsManager;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 
 import com.softdesign.sosapplication.mvp.contacts.ContactView;
+import com.softdesign.sosapplication.utils.common.ConstantManager;
+import com.softdesign.sosapplication.utils.managers.DataManager;
+import com.softdesign.sosapplication.utils.managers.PreferenceManager;
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.map.CameraListener;
 import com.yandex.mapkit.map.CameraPosition;
@@ -65,7 +72,24 @@ public class MapPresenter {
 
     public void sosMailingContacts() {
 
+        PreferenceManager preferenceManager = DataManager.getInstance().getPreferenceManager();
+        int sizeContacts = preferenceManager.loadSizeContact();
+        for (int i = 0; i <= sizeContacts; i++) {
+            String contact = preferenceManager.loadContact(i);
+
+            if (!contact.equals("UNKNOWN")) {
+                String[] info = contact.trim().split(":");
+                String name = info[0];
+                String phone = "smsto:" + info[1];
+                String message = name + "," + "я попал в беду";
+                SmsManager.getDefault().sendTextMessage(phone, null, message,
+                        null, null);
+            }
+        }
+
     }
 
-
 }
+
+
+

@@ -5,4 +5,6 @@
     <string name="sign_in_password">Пароль</string>
     <string name="recycler_password_text">Забыли пароль</string>
     <string name="settings_permission">Настройки</string>
+    <string name="yes_add_contact">Да</string>
+    <string name="cancel_add_contact">Отмена</string>
 </resources>

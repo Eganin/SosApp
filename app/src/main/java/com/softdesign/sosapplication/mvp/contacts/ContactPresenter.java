@@ -6,6 +6,9 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.Settings;
 
+import com.softdesign.sosapplication.utils.common.ConstantManager;
+import com.softdesign.sosapplication.utils.managers.DataManager;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -58,4 +61,9 @@ public class ContactPresenter {
 
         view.startActivityForResult(appSettingsIntent, 222);
     }
+
+    public void saveBooleanShowDialogContact(boolean flag){
+        DataManager.getInstance().getPreferenceManager().saveBooleanShowDialogContact(flag);
+    }
+
 }
