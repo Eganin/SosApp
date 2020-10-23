@@ -1,15 +1,17 @@
 package com.softdesign.sosapplication.mvp.map;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -18,6 +20,19 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.softdesign.sosapplication.R;
 import com.softdesign.sosapplication.utils.common.ConstantManager;
@@ -26,8 +41,6 @@ import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.mapview.MapView;
 
-import java.util.Date;
-
 
 public class MapYandexView extends AppCompatActivity {
 
@@ -35,10 +48,15 @@ public class MapYandexView extends AppCompatActivity {
     private MapPresenter presenter;
     private CoordinatorLayout coordinatorLayout;
 
-    private LocationManager locationManager;
-
     private static final String API_KEY = "e471b509-7c28-4a88-8ce1-e39dadfb211b";
-    public static final Point TARGET_LOCATION = new Point(59.945933, 30.320045);
+    public  Point TARGET_LOCATION = new Point(59.945933, 30.320045);
+
+    private FusedLocationProviderClient fusedLocationProviderClient;
+    private SettingsClient settingsClient;// для доступа к настройкам
+    private LocationRequest locationRequest; // дял сохранения запроса
+    private LocationSettingsRequest locationSettingsRequest;
+    private LocationCallback locationCallback; // для событий определения местоположения
+    private Location currentLocation; // хранение широты и долготы
 
 
     @Override
@@ -60,6 +78,12 @@ public class MapYandexView extends AppCompatActivity {
         super.onResume();
         presenter.attachView(MapYandexView.this);
         presenter.loadYandexMap();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                startLocationUpdate();
+            }
+        }).start();
 
     }
 
@@ -71,6 +95,7 @@ public class MapYandexView extends AppCompatActivity {
         clickerFloatingButton();
         startServices();
         getConditionUser();
+        initLocationClient();
     }
 
     @Override
@@ -100,9 +125,37 @@ public class MapYandexView extends AppCompatActivity {
                     showSnackBarPermission("Для работы приложения необходимы разрешения");
                 }
 
+            case ConstantManager.REQUEST_LOCATION_PERMISSION:
+                if(grantResults.length> 0 &&
+                grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                grantResults[1] == PackageManager.PERMISSION_GRANTED){
+                    startLocationUpdate();
+                }else{
+                    showSnackBarPermission("Для работы приложения необходимы разрешения");
+                }
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case ConstantManager.CHECK_SETTINGS_CODE:
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        Log.d("MainActivity", "User agreed permission");
+                        startLocationUpdate();
+                        break;
+
+                    case Activity.RESULT_CANCELED:
+                        Log.d("MainActivity", "User not agreed permission");
+                        updateLocationUI();
+                        break;
+                }
+
+                break;
+        }
+    }
 
 
     private void startServices() {
@@ -131,7 +184,6 @@ public class MapYandexView extends AppCompatActivity {
 
     private void init() {
         coordinatorLayout = findViewById(R.id.coordinator_main_layout);
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mapView = findViewById(R.id.mapView);
         MapModel model = new MapModel();
         presenter = new MapPresenter(model);
@@ -216,6 +268,109 @@ public class MapYandexView extends AppCompatActivity {
         }
 
         return super.onCreateDialog(id);
+    }
+
+    private void initLocationClient() {
+        fusedLocationProviderClient = LocationServices.
+                getFusedLocationProviderClient(MapYandexView.this);
+        settingsClient = LocationServices.getSettingsClient(MapYandexView.this);
+
+        buildLocationRequest();
+        buildLocationCallBack();
+        buildLocationSettingsRequest();
+    }
+
+    private void buildLocationRequest() {
+        // создание запроса
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(10000);// отправляем запрос каждые 10 секунд
+        locationRequest.setFastestInterval(3000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);// с высокой точностью запрос
+    }
+
+    private void buildLocationCallBack() {
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                // получаем последнее метополжение
+                currentLocation = locationResult.getLastLocation();
+                updateLocationUI();
+            }
+        };
+    }
+
+    private void buildLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder =
+                new LocationSettingsRequest.Builder();
+
+        builder.addLocationRequest(locationRequest);
+        locationSettingsRequest = builder.build();
+    }
+
+    private void startLocationUpdate(){
+        // проверка настроек
+        settingsClient.checkLocationSettings(locationSettingsRequest)
+                .addOnSuccessListener(MapYandexView.this,
+                        new OnSuccessListener<LocationSettingsResponse>() {
+                            @Override
+                            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                                // запрашиваем обновление локации
+                                if (ActivityCompat.checkSelfPermission(MapYandexView.this,
+                                        Manifest.permission.ACCESS_FINE_LOCATION) !=
+                                        PackageManager.PERMISSION_GRANTED &&
+                                        ActivityCompat.checkSelfPermission(MapYandexView.this,
+                                                Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                                                PackageManager.PERMISSION_GRANTED) {
+
+                                    return;
+                                }
+                                fusedLocationProviderClient.requestLocationUpdates(
+                                        locationRequest,
+                                        locationCallback,
+                                        Looper.myLooper()
+                                );
+                                updateLocationUI();
+                            }
+                        })
+                .addOnFailureListener(MapYandexView.this,
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                int statusCode = ((ApiException) e).getStatusCode();
+
+                                switch (statusCode) {
+                                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                        try {
+                                            ResolvableApiException resolvableApiException =
+                                                    (ResolvableApiException) e;
+
+                                            resolvableApiException.startResolutionForResult(
+                                                    MapYandexView.this,
+                                                    ConstantManager.CHECK_SETTINGS_CODE
+
+                                            );
+
+                                        } catch (IntentSender.SendIntentException ex) {
+                                            ex.printStackTrace();
+                                        }
+                                        break;
+
+                                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                        break;
+                                }
+
+                                updateLocationUI();
+                            }
+                        });
+    }
+
+    private void updateLocationUI() {
+        if(currentLocation != null){
+            System.out.println(currentLocation.getLatitude()+ " " +currentLocation.getLongitude());
+            TARGET_LOCATION = new Point(currentLocation.getLatitude() , currentLocation.getLongitude());
+        }
+
     }
 
 

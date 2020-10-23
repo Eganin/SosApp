@@ -12,4 +12,6 @@ public interface ConstantManager {
     String SAVE_SHOW_CONTACT_DIALOG = "SHOW_CONTACT_DIALOG";
     int PERMISSION_GPS = 444;
 
+    int CHECK_SETTINGS_CODE = 5;
+    int REQUEST_LOCATION_PERMISSION=546;
 }
