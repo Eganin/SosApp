@@ -1,5 +1,7 @@
 package com.softdesign.sosapplication.utils.services;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -7,11 +9,17 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
+import android.os.Messenger;
 import android.widget.Toast;
+
+import androidx.core.app.NotificationCompat;
+
+import com.softdesign.sosapplication.R;
+import com.softdesign.sosapplication.mvp.map.MapYandexView;
+import com.softdesign.sosapplication.utils.common.ConstantManager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 
 public class AcelerometrService extends Service {
 
@@ -19,10 +27,6 @@ public class AcelerometrService extends Service {
     private Sensor sensorAccel;
     private Sensor sensorLinAccel;
     private Sensor sensorGravity;
-
-    public AcelerometrService() {
-
-    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -32,6 +36,7 @@ public class AcelerometrService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
         // получаем доступ ко всем сепвисам-датчикам
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         // получаем доступ к определенным датчикам
@@ -54,10 +59,9 @@ public class AcelerometrService extends Service {
     }
 
 
-
     private void showInfo(double result) {
-        if(result <2.0){
-            Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show();
+        if (result < 2.0) {
+            sendNotification();
         }
     }
 
@@ -85,4 +89,33 @@ public class AcelerometrService extends Service {
 
         }
     };
+
+    private void sendNotification() {
+
+        Intent trueResultIntent = new Intent(this, MapYandexView.class);
+        trueResultIntent.putExtra(ConstantManager.CONDITION_USER_FROM_DIALOG, true);
+        PendingIntent trueResultPendingIntent = PendingIntent.getActivity(this, 0, trueResultIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent falseResultIntent = new Intent(this, MapYandexView.class);
+        falseResultIntent.putExtra(ConstantManager.CONDITION_USER_FROM_DIALOG, true);
+        PendingIntent falseResultPendingIntent = PendingIntent.getActivity(this, 0, falseResultIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationManager notificationManager = (NotificationManager)
+                getSystemService(NOTIFICATION_SERVICE);
+        String CHANNEL_ID = "my_channel";
+        int NOTIFICATIONS_ID = 1;
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(),
+                CHANNEL_ID)
+                .setContentTitle("Уведовлемение")
+                .setContentText("С вами все в порядке?")
+                .setVibrate(new long[]{0, 2000, 1100, 1000})
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .addAction(R.drawable.ic_baseline_check_24, "Все хорошо", trueResultPendingIntent)
+                .addAction(R.drawable.ic_baseline_close_24, "Нет", falseResultPendingIntent);
+
+        // запускаем увкдовлемение
+        notificationManager.notify(NOTIFICATIONS_ID, builder.build());
+    }
 }

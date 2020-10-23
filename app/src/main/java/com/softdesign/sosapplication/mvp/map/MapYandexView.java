@@ -6,9 +6,9 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -19,14 +19,11 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.softdesign.sosapplication.R;
-import com.softdesign.sosapplication.utils.common.Application;
 import com.softdesign.sosapplication.utils.common.ConstantManager;
 import com.softdesign.sosapplication.utils.services.AcelerometrService;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.mapview.MapView;
-
-import java.util.Timer;
 
 
 public class MapYandexView extends AppCompatActivity {
@@ -39,17 +36,12 @@ public class MapYandexView extends AppCompatActivity {
     public static final Point TARGET_LOCATION = new Point(59.945933, 30.320045);
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         MapKitFactoryInit();
         setContentView(R.layout.map_view);
         init();
-        clickerFloatingButton();
-        // start service acelerometr check
-        Intent intent = new Intent(MapYandexView.this , AcelerometrService.class);
-        startService(intent);
     }
 
     @Override
@@ -70,6 +62,11 @@ public class MapYandexView extends AppCompatActivity {
         super.onStart();
         mapView.onStart();
         MapKitFactory.getInstance().onStart();
+        clickerFloatingButton();
+        getConditionUser();
+        // start service acelerometr check
+        Intent intent = new Intent(MapYandexView.this, AcelerometrService.class);
+        startService(intent);
     }
 
     @Override
@@ -98,6 +95,15 @@ public class MapYandexView extends AppCompatActivity {
                 } else {
                     showSnackBarPermission("Для работы приложения необходимы разрешения");
                 }
+        }
+    }
+
+    private void getConditionUser() {
+        Intent currentIntent = getIntent();
+        boolean currentConditionUser = currentIntent.getBooleanExtra(
+                ConstantManager.CONDITION_USER_FROM_DIALOG,true);
+        if(!currentConditionUser){
+            showDialog(ConstantManager.DIALOG_SOS_EXIT);
         }
     }
 
@@ -171,8 +177,8 @@ public class MapYandexView extends AppCompatActivity {
                 }).show();
     }
 
-    protected Dialog onCreateDialog(int id){
-        if(id == ConstantManager.DIALOG_SOS_EXIT){
+    protected Dialog onCreateDialog(int id) {
+        if (id == ConstantManager.DIALOG_SOS_EXIT) {
             AlertDialog.Builder adb = new AlertDialog.Builder(this);
             adb.setTitle("Послать сигнал SOS?");
             adb.setPositiveButton(R.string.yes_add_contact, new DialogInterface.OnClickListener() {
@@ -194,7 +200,6 @@ public class MapYandexView extends AppCompatActivity {
 
         return super.onCreateDialog(id);
     }
-
 
 
 }
