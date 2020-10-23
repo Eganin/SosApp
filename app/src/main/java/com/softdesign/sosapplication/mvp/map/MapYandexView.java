@@ -6,9 +6,10 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -25,12 +26,16 @@ import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.mapview.MapView;
 
+import java.util.Date;
+
 
 public class MapYandexView extends AppCompatActivity {
 
     public MapView mapView;
     private MapPresenter presenter;
     private CoordinatorLayout coordinatorLayout;
+
+    private LocationManager locationManager;
 
     private static final String API_KEY = "e471b509-7c28-4a88-8ce1-e39dadfb211b";
     public static final Point TARGET_LOCATION = new Point(59.945933, 30.320045);
@@ -55,6 +60,7 @@ public class MapYandexView extends AppCompatActivity {
         super.onResume();
         presenter.attachView(MapYandexView.this);
         presenter.loadYandexMap();
+
     }
 
     @Override
@@ -63,10 +69,8 @@ public class MapYandexView extends AppCompatActivity {
         mapView.onStart();
         MapKitFactory.getInstance().onStart();
         clickerFloatingButton();
+        startServices();
         getConditionUser();
-        // start service acelerometr check
-        Intent intent = new Intent(MapYandexView.this, AcelerometrService.class);
-        startService(intent);
     }
 
     @Override
@@ -95,14 +99,26 @@ public class MapYandexView extends AppCompatActivity {
                 } else {
                     showSnackBarPermission("Для работы приложения необходимы разрешения");
                 }
+
         }
+    }
+
+
+
+    private void startServices() {
+        // start service acelerometr check
+        Intent intentAcelerometry = new Intent(MapYandexView.this, AcelerometrService.class);
+        startService(intentAcelerometry);
+
+
     }
 
     private void getConditionUser() {
         Intent currentIntent = getIntent();
         boolean currentConditionUser = currentIntent.getBooleanExtra(
-                ConstantManager.CONDITION_USER_FROM_DIALOG,true);
-        if(!currentConditionUser){
+                ConstantManager.CONDITION_USER_FROM_DIALOG, true);
+
+        if (!currentConditionUser) {
             showDialog(ConstantManager.DIALOG_SOS_EXIT);
         }
     }
@@ -115,6 +131,7 @@ public class MapYandexView extends AppCompatActivity {
 
     private void init() {
         coordinatorLayout = findViewById(R.id.coordinator_main_layout);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mapView = findViewById(R.id.mapView);
         MapModel model = new MapModel();
         presenter = new MapPresenter(model);
@@ -200,6 +217,7 @@ public class MapYandexView extends AppCompatActivity {
 
         return super.onCreateDialog(id);
     }
+
 
 
 }

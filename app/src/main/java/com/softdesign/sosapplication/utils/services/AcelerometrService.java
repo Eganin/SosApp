@@ -9,8 +9,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
-import android.os.Messenger;
-import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 
@@ -98,7 +96,7 @@ public class AcelerometrService extends Service {
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent falseResultIntent = new Intent(this, MapYandexView.class);
-        falseResultIntent.putExtra(ConstantManager.CONDITION_USER_FROM_DIALOG, true);
+        falseResultIntent.putExtra(ConstantManager.CONDITION_USER_FROM_DIALOG, false);
         PendingIntent falseResultPendingIntent = PendingIntent.getActivity(this, 0, falseResultIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
