@@ -18,8 +18,8 @@ import com.softdesign.sosapplication.R;
 import com.softdesign.sosapplication.utils.adapters.ContactAdapter;
 import com.softdesign.sosapplication.utils.common.ConstantManager;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ContactView extends AppCompatActivity {
 
@@ -34,6 +34,7 @@ public class ContactView extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.contact_view);
+        setTitle("Котакты");
         init();
     }
 
@@ -41,7 +42,7 @@ public class ContactView extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         presenter.attachView(ContactView.this);
-        List<String> contacts = getContacts();
+        Set<String> contacts = getContacts();
         initRecyclerView(contacts);
     }
 
@@ -61,7 +62,7 @@ public class ContactView extends AppCompatActivity {
         }
     }
 
-    private void initRecyclerView(List<String> contacts) {
+    private void initRecyclerView(Set<String> contacts) {
         recyclerView = findViewById(R.id.contactsRecyclerView);
         recyclerView.setHasFixedSize(true);
         adapter = new ContactAdapter(contacts , getApplicationContext());
@@ -76,7 +77,7 @@ public class ContactView extends AppCompatActivity {
         coordinatorLayout = findViewById(R.id.coordinator);
     }
 
-    private List<String> getContacts() {
+    private Set<String> getContacts() {
         int permissionStatusWriteContacts = ContextCompat.checkSelfPermission(ContactView.this,
                 Manifest.permission.WRITE_CONTACTS);
 
@@ -85,9 +86,9 @@ public class ContactView extends AppCompatActivity {
 
         if (permissionStatusReadContacts == PackageManager.PERMISSION_GRANTED &&
                 permissionStatusWriteContacts == PackageManager.PERMISSION_GRANTED) {
-            List<String> listContacts = presenter.getAllContacts();
+            Set<String> setContacts = presenter.getAllContacts();
 
-            return listContacts;
+            return setContacts;
         } else {
             ActivityCompat.requestPermissions(ContactView.this, new String[]{
                             Manifest.permission.WRITE_CONTACTS,
@@ -95,7 +96,7 @@ public class ContactView extends AppCompatActivity {
                     ConstantManager.REQUEST_CODE_WORK_CONTACTS);
         }
 
-        return Arrays.asList();
+        return new HashSet<>();
     }
 
     public void showSnackBar(String message) {

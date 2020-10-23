@@ -12,14 +12,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.softdesign.sosapplication.R;
 
-import java.util.List;
+import java.util.Set;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactViewHolder> {
 
-    private List<String> contacts;
+    private Set<String> contacts;
     private Context context;
 
-    public ContactAdapter(List<String> contacts, Context context) {
+    public ContactAdapter(Set<String> contacts, Context context) {
         this.contacts = contacts;
         this.context = context;
     }
@@ -36,7 +36,14 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
 
     @Override
     public void onBindViewHolder(@NonNull ContactViewHolder holder, int position) {
-        String phoneAndName = contacts.get(position);
+        String phoneAndName = "";
+        int counter = -1;
+        for (String el : contacts) {
+            counter++;
+            if (counter == position) {
+                phoneAndName = el;
+            }
+        }
 
         holder.nameContact.setText(phoneAndName);
     }
@@ -63,7 +70,14 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
 
         @Override
         public void onClick(View v) {
+            int position = getAdapterPosition();
+            int counter = -1;
+            for (String el : contacts) {
+                counter++;
+                if (counter == position) {
 
+                }
+            }
         }
     }
 }

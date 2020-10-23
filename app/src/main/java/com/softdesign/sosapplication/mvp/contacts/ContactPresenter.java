@@ -7,7 +7,9 @@ import android.provider.ContactsContract;
 import android.provider.Settings;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ContactPresenter {
     private final ContactModel model;
@@ -27,9 +29,9 @@ public class ContactPresenter {
     }
 
 
-    public List<String> getAllContacts() {
+    public Set<String> getAllContacts() {
 
-        List<String> listPhones = new ArrayList<String>();
+        Set<String> setPhones = new HashSet<String>();
 
         Cursor cursor1 = view.getContentResolver().query(ContactsContract.
                         CommonDataKinds.Phone.CONTENT_URI, new String[]
@@ -40,14 +42,14 @@ public class ContactPresenter {
 
         if (cursor1.getCount() > 0) {
             while (cursor1.moveToNext()) {
-                listPhones.add(cursor1.getString(1) + ":"
+                setPhones.add(cursor1.getString(1) + ":"
                         + cursor1.getString(2));
             }
         } else {
             view.showSnackBar("У вас нет контактов");
         }
 
-        return listPhones;
+        return setPhones;
     }
 
     public void openSettings() {

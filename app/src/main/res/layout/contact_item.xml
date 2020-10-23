@@ -23,9 +23,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginLeft="@dimen/spacing_medium_32"
+            android:layout_marginLeft="@dimen/spacing_medial_24"
             android:text="Eganin"
             android:textSize="@dimen/size_middle_30" />
+
 
     </LinearLayout>
 
