@@ -7,4 +7,7 @@
     <string name="settings_permission">Настройки</string>
     <string name="yes_add_contact">Да</string>
     <string name="cancel_add_contact">Отмена</string>
+    <string name="registration_text">Регистрация</string>
+    <string name="name_user_registration_text">Имя пользователя</string>
+    <string name="registration_text_button">Зарегистрироваться</string>
 </resources>

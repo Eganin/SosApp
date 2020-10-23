@@ -111,15 +111,6 @@
                     android:textColor="@color/white_text"
                     android:textSize="@dimen/spacing_normal_16" />
 
-                <TextView
-                    android:id="@+id/remeberPassword"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="@dimen/spacing_normal_16"
-                    android:text="@string/recycler_password_text"
-                    android:textColor="@color/gray_background"
-                    android:textSize="@dimen/spacing_normal_16" />
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>

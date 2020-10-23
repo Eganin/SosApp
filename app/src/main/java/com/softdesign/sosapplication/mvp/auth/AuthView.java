@@ -43,13 +43,6 @@ public class AuthView extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.remeberPassword).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.handlerRecyclerButton();
-            }
-        });
-
         findViewById(R.id.authButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

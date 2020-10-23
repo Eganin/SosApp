@@ -3,7 +3,6 @@ package com.softdesign.sosapplication.mvp.auth;
 import android.content.Intent;
 
 import com.softdesign.sosapplication.mvp.map.MapYandexView;
-import com.softdesign.sosapplication.mvp.recovery.RecoveryView;
 import com.softdesign.sosapplication.mvp.registration.RegistrationView;
 
 public class AuthPresenter {
@@ -28,10 +27,6 @@ public class AuthPresenter {
         view.startActivity(intent);
     }
 
-    public void handlerRecyclerButton() {
-        Intent intent = new Intent(view, RecoveryView.class);
-        view.startActivity(intent);
-    }
 
     public void handlerAuthButton() {
         Intent intent = new Intent(view, MapYandexView.class);
