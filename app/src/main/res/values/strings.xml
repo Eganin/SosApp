@@ -10,4 +10,8 @@
     <string name="registration_text">Регистрация</string>
     <string name="name_user_registration_text">Имя пользователя</string>
     <string name="registration_text_button">Зарегистрироваться</string>
+    <string name="name">Егор Захарин</string>
+    <string name="test_email">egorzaharin12@gmail.com</string>
+    <string name="road_map_text">Проложить путь</string>
+    <string name="settings_text_menu">Настройки</string>
 </resources>

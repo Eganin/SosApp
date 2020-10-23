@@ -12,6 +12,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -36,10 +39,16 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.softdesign.sosapplication.R;
 import com.softdesign.sosapplication.utils.common.ConstantManager;
+import com.softdesign.sosapplication.utils.managers.DataManager;
+import com.softdesign.sosapplication.utils.managers.PreferenceManager;
 import com.softdesign.sosapplication.utils.services.AcelerometrService;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.mapview.MapView;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class MapYandexView extends AppCompatActivity {
@@ -47,9 +56,10 @@ public class MapYandexView extends AppCompatActivity {
     public MapView mapView;
     private MapPresenter presenter;
     private CoordinatorLayout coordinatorLayout;
+    private DrawerLayout drawerLayout;
 
     private static final String API_KEY = "e471b509-7c28-4a88-8ce1-e39dadfb211b";
-    public  Point TARGET_LOCATION = new Point(59.945933, 30.320045);
+    public Point TARGET_LOCATION = new Point(59.945933, 30.320045);
 
     private FusedLocationProviderClient fusedLocationProviderClient;
     private SettingsClient settingsClient;// для доступа к настройкам
@@ -57,6 +67,10 @@ public class MapYandexView extends AppCompatActivity {
     private LocationSettingsRequest locationSettingsRequest;
     private LocationCallback locationCallback; // для событий определения местоположения
     private Location currentLocation; // хранение широты и долготы
+
+    private boolean isRoadMap = false;
+
+    private List<List<Double>> listCoordinatsDefaultUser = new ArrayList<>();
 
 
     @Override
@@ -77,13 +91,13 @@ public class MapYandexView extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         presenter.attachView(MapYandexView.this);
-        presenter.loadYandexMap();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 startLocationUpdate();
             }
         }).start();
+
 
     }
 
@@ -126,11 +140,11 @@ public class MapYandexView extends AppCompatActivity {
                 }
 
             case ConstantManager.REQUEST_LOCATION_PERMISSION:
-                if(grantResults.length> 0 &&
-                grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                grantResults[1] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                        grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                     startLocationUpdate();
-                }else{
+                } else {
                     showSnackBarPermission("Для работы приложения необходимы разрешения");
                 }
         }
@@ -155,6 +169,30 @@ public class MapYandexView extends AppCompatActivity {
 
                 break;
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            drawerLayout.openDrawer(GravityCompat.START);
+        } else if (id == R.id.roadMap) {
+            if (!isRoadMap) {
+                isRoadMap = true;
+            } else {
+                isRoadMap = false;
+                PreferenceManager preferenceManager = DataManager.getInstance().getPreferenceManager();
+                for(int i=0;i<+listCoordinatsDefaultUser.size();i++){
+                    preferenceManager.saveDefaultCoordinatUser(listCoordinatsDefaultUser.get(i),i);
+                }
+
+            }
+        } else if (id == R.id.settings) {
+            presenter.openSettings();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
 
@@ -184,9 +222,9 @@ public class MapYandexView extends AppCompatActivity {
 
     private void init() {
         coordinatorLayout = findViewById(R.id.coordinator_main_layout);
+        drawerLayout = findViewById(R.id.drawerLayoutMain);
         mapView = findViewById(R.id.mapView);
-        MapModel model = new MapModel();
-        presenter = new MapPresenter(model);
+        presenter = new MapPresenter();
         presenter.attachView(MapYandexView.this);
 
         viewMap();
@@ -223,7 +261,7 @@ public class MapYandexView extends AppCompatActivity {
         if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
             // перемещение камеры по координатам
             presenter.attachView(MapYandexView.this);
-            presenter.loadYandexMap();
+            presenter.loadYandexMap(TARGET_LOCATION);
         } else {
             ActivityCompat.requestPermissions(MapYandexView.this, new String[]{
                             Manifest.permission.ACCESS_FINE_LOCATION},
@@ -308,7 +346,7 @@ public class MapYandexView extends AppCompatActivity {
         locationSettingsRequest = builder.build();
     }
 
-    private void startLocationUpdate(){
+    private void startLocationUpdate() {
         // проверка настроек
         settingsClient.checkLocationSettings(locationSettingsRequest)
                 .addOnSuccessListener(MapYandexView.this,
@@ -366,13 +404,15 @@ public class MapYandexView extends AppCompatActivity {
     }
 
     private void updateLocationUI() {
-        if(currentLocation != null){
-            System.out.println(currentLocation.getLatitude()+ " " +currentLocation.getLongitude());
-            TARGET_LOCATION = new Point(currentLocation.getLatitude() , currentLocation.getLongitude());
+        if (currentLocation != null) {
+            Point currentPoint = new Point(currentLocation.getLatitude(), currentLocation.getLongitude());
+            if (isRoadMap) {
+                listCoordinatsDefaultUser.add(Arrays.<Double>asList(currentPoint.getLatitude(),currentPoint.getLongitude()));
+            }
+            presenter.loadYandexMap(currentPoint);
         }
 
     }
-
 
 
 }

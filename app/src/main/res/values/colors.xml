@@ -8,4 +8,5 @@
     <color name="black">#1B1B1B</color>
     <color name="grey">#4CAF50</color>
     <color name="gray_background">#807C7C</color>
+    <color name="super_black">#000000</color>
 </resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/roadMap"
+            android:checkable="true"
+            android:icon="@drawable/ic_baseline_location_on_24"
+            android:title="@string/road_map_text"/>
+        <item
+            android:id="@+id/settings"
+            android:icon="@drawable/ic_baseline_settings_24"
+            android:title="@string/settings_text_menu"/>
+    </group>
+</menu>

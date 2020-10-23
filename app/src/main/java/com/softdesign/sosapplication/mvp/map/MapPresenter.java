@@ -1,22 +1,19 @@
 package com.softdesign.sosapplication.mvp.map;
 
-
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.provider.Settings;
 import android.telephony.SmsManager;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 
 import com.softdesign.sosapplication.mvp.contacts.ContactView;
-import com.softdesign.sosapplication.utils.common.ConstantManager;
 import com.softdesign.sosapplication.utils.managers.DataManager;
 import com.softdesign.sosapplication.utils.managers.PreferenceManager;
 import com.yandex.mapkit.Animation;
+
+import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.map.CameraListener;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.CameraUpdateSource;
@@ -26,13 +23,10 @@ import com.yandex.mapkit.map.Map;
 public class MapPresenter {
 
     private MapYandexView view;
-    private MapModel model;
-    private Context context;
 
-    public MapPresenter(MapModel model) {
-        this.model = model;
+    public MapPresenter() {
+
     }
-
 
     public void attachView(MapYandexView view) {
         this.view = view;
@@ -42,20 +36,25 @@ public class MapPresenter {
         this.view = null;
     }
 
-    public void loadYandexMap() {
-        view.mapView.getMap().move(
-                new CameraPosition(view.TARGET_LOCATION, 11.0f, 0.0f, 0.0f),
-                new Animation(Animation.Type.SMOOTH, 0),
-                null
-        );
-        final CameraListener cameraListener = new CameraListener() {
-            @Override
-            public void onCameraPositionChanged(@NonNull Map map, @NonNull CameraPosition cameraPosition,
-                                                @NonNull CameraUpdateSource cameraUpdateSource, boolean b) {
+    public void loadYandexMap(Point currentLocation) {
+        try {
+            view.mapView.getMap().move(
+                    new CameraPosition(currentLocation, 11.0f, 0.0f, 0.0f),
+                    new Animation(Animation.Type.SMOOTH, 0),
+                    null
+            );
+            final CameraListener cameraListener = new CameraListener() {
+                @Override
+                public void onCameraPositionChanged(@NonNull Map map, @NonNull CameraPosition cameraPosition,
+                                                    @NonNull CameraUpdateSource cameraUpdateSource, boolean b) {
 
-            }
-        };
-        view.mapView.getMap().addCameraListener(cameraListener);
+                }
+            };
+            view.mapView.getMap().addCameraListener(cameraListener);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void openSettings() {

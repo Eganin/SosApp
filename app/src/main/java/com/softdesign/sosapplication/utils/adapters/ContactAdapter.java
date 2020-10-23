@@ -1,9 +1,6 @@
 package com.softdesign.sosapplication.utils.adapters;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.softdesign.sosapplication.R;
-import com.softdesign.sosapplication.mvp.contacts.ContactModel;
-import com.softdesign.sosapplication.mvp.contacts.ContactPresenter;
 import com.softdesign.sosapplication.mvp.contacts.ContactView;
 import com.softdesign.sosapplication.utils.common.ConstantManager;
 import com.softdesign.sosapplication.utils.managers.DataManager;

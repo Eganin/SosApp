@@ -6,7 +6,6 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.softdesign.sosapplication.R;
-import com.softdesign.sosapplication.mvp.auth.AuthView;
 
 public class RegistrationView extends AppCompatActivity {
 

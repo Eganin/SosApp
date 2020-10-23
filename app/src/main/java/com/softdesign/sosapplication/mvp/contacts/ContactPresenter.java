@@ -6,20 +6,15 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.Settings;
 
-import com.softdesign.sosapplication.utils.common.ConstantManager;
 import com.softdesign.sosapplication.utils.managers.DataManager;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class ContactPresenter {
-    private final ContactModel model;
     private ContactView view;
 
-    public ContactPresenter(ContactModel model) {
-        this.model = model;
+    public ContactPresenter(){
     }
 
     public void attachView(ContactView view) {

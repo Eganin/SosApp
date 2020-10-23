@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import com.softdesign.sosapplication.utils.common.Application;
 import com.softdesign.sosapplication.utils.common.ConstantManager;
 
+import java.util.List;
+
 public class PreferenceManager {
 
     private SharedPreferences sharedPreferences;
@@ -46,5 +48,22 @@ public class PreferenceManager {
 
     public boolean loadBooleanShowDialogContact() {
         return sharedPreferences.getBoolean(ConstantManager.SAVE_SHOW_CONTACT_DIALOG, false);
+    }
+
+    public void saveDefaultCoordinatUser(List<Double> coordinat, int counter) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putFloat(ConstantManager.SAVE_COORDINAT_ONE + counter, Float.parseFloat(String.valueOf(coordinat.get(0))));
+        editor.putFloat(ConstantManager.SAVE_COORDINAT_TWO + counter, Float.parseFloat(String.valueOf(coordinat.get(1))));
+    }
+
+    public List<List<Double>> loadDefaultCoordinatsUser() {
+
+    }
+
+    public void saveSizeCoordinats() {
+
+    }
+
+    public int loadSizeCoordinats() {
     }
 }

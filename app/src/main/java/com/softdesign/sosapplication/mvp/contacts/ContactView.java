@@ -77,8 +77,7 @@ public class ContactView extends AppCompatActivity {
     }
 
     private void init() {
-        ContactModel model = new ContactModel();
-        presenter = new ContactPresenter(model);
+        presenter = new ContactPresenter();
         coordinatorLayout = findViewById(R.id.coordinator);
     }
 
