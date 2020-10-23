@@ -16,6 +16,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <service
+            android:name=".utils.services.AcelerometrService"
+            android:enabled="true"
+            android:exported="true" />
         <activity android:name=".mvp.contacts.ContactView"></activity>
         <activity android:name=".mvp.map.MapYandexView"></activity>
         <activity android:name=".mvp.registration.RegistrationView"></activity>
