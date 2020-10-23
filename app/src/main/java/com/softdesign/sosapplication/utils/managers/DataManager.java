@@ -9,7 +9,7 @@ public class DataManager {
         this.preferenceManager = new PreferenceManager();
     }
 
-    private static DataManager getInstance() {
+    public static DataManager getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new DataManager();
         }

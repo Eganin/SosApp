@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.softdesign.sosapplication.R;
+import com.softdesign.sosapplication.utils.managers.DataManager;
 
 import java.util.Set;
 
@@ -72,10 +73,11 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         public void onClick(View v) {
             int position = getAdapterPosition();
             int counter = -1;
-            for (String el : contacts) {
+            for (String contact : contacts) {
                 counter++;
                 if (counter == position) {
-
+                    DataManager.getInstance().getPreferenceManager().saveSizeContacts(contacts.size());
+                    DataManager.getInstance().getPreferenceManager().saveContact(counter, contact);
                 }
             }
         }
