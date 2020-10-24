@@ -182,10 +182,7 @@ public class MapYandexView extends AppCompatActivity {
                 isRoadMap = true;
             } else {
                 isRoadMap = false;
-                PreferenceManager preferenceManager = DataManager.getInstance().getPreferenceManager();
-                for(int i=0;i<+listCoordinatsDefaultUser.size();i++){
-                    preferenceManager.saveDefaultCoordinatUser(listCoordinatsDefaultUser.get(i),i);
-                }
+                showDialog(ConstantManager.DIALOG_PATH_DEFAULT_USER);
 
             }
         } else if (id == R.id.settings) {
@@ -193,6 +190,14 @@ public class MapYandexView extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void saveDefaultPathUser() {
+        PreferenceManager preferenceManager = DataManager.getInstance().getPreferenceManager();
+        preferenceManager.saveSizeContacts(listCoordinatsDefaultUser.size());
+        for (int i = 0; i < +listCoordinatsDefaultUser.size(); i++) {
+            preferenceManager.saveDefaultCoordinatUser(listCoordinatsDefaultUser.get(i), i);
+        }
     }
 
 
@@ -286,12 +291,30 @@ public class MapYandexView extends AppCompatActivity {
 
     protected Dialog onCreateDialog(int id) {
         if (id == ConstantManager.DIALOG_SOS_EXIT) {
-            AlertDialog.Builder adb = new AlertDialog.Builder(this);
+            AlertDialog.Builder adb = new AlertDialog.Builder(MapYandexView.this);
             adb.setTitle("Послать сигнал SOS?");
             adb.setPositiveButton(R.string.yes_add_contact, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     presenter.sosMailingContacts();
+                }
+            });
+
+            adb.setNegativeButton(R.string.cancel_add_contact, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            return adb.create();
+        } else if (id == ConstantManager.DIALOG_PATH_DEFAULT_USER) {
+            AlertDialog.Builder adb = new AlertDialog.Builder(MapYandexView.this);
+            adb.setTitle("Ваш обычный путь записан");
+            adb.setPositiveButton(R.string.yes_add_contact, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    saveDefaultPathUser();
                 }
             });
 
@@ -406,11 +429,20 @@ public class MapYandexView extends AppCompatActivity {
     private void updateLocationUI() {
         if (currentLocation != null) {
             Point currentPoint = new Point(currentLocation.getLatitude(), currentLocation.getLongitude());
+            double currentLatitude = currentPoint.getLatitude();
+            double currentLongitude = currentPoint.getLongitude();
             if (isRoadMap) {
-                listCoordinatsDefaultUser.add(Arrays.<Double>asList(currentPoint.getLatitude(),currentPoint.getLongitude()));
+                listCoordinatsDefaultUser.add(Arrays.<Double>asList(currentLatitude, currentLongitude));
+            } else {
+                equalsCoordiants(currentLatitude, currentLongitude);
             }
             presenter.loadYandexMap(currentPoint);
         }
+
+    }
+
+
+    private void equalsCoordiants(double currentLatitude, double currentLongitude) {
 
     }
 
