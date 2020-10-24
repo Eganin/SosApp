@@ -76,4 +76,16 @@ public class PreferenceManager {
     public int loadSizeCoordinats() {
         return sharedPreferences.getInt(ConstantManager.SAVE_SIZE_COORDINATS, 0);
     }
+
+    public void saveIsRoad(String answer) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(ConstantManager.SAVE_IS_ROAD, answer);
+
+        editor.apply();
+    }
+
+    public String loadIsRoad() {
+        return sharedPreferences.getString(ConstantManager.SAVE_IS_ROAD , "NO");
+
+    }
 }

@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -19,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -36,6 +39,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.softdesign.sosapplication.R;
 import com.softdesign.sosapplication.utils.common.ConstantManager;
@@ -49,14 +53,16 @@ import com.yandex.mapkit.mapview.MapView;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 
-public class MapYandexView extends AppCompatActivity {
+public class MapYandexView extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public MapView mapView;
     private MapPresenter presenter;
     private CoordinatorLayout coordinatorLayout;
     private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
 
     private static final String API_KEY = "e471b509-7c28-4a88-8ce1-e39dadfb211b";
     public Point TARGET_LOCATION = new Point(59.945933, 30.320045);
@@ -68,7 +74,8 @@ public class MapYandexView extends AppCompatActivity {
     private LocationCallback locationCallback; // для событий определения местоположения
     private Location currentLocation; // хранение широты и долготы
 
-    private boolean isRoadMap = false;
+    private boolean isRoadMap;
+    private String isRoadUser = DataManager.getInstance().getPreferenceManager().loadIsRoad();
 
     private List<List<Double>> listCoordinatsDefaultUser = new ArrayList<>();
 
@@ -141,8 +148,7 @@ public class MapYandexView extends AppCompatActivity {
 
             case ConstantManager.REQUEST_LOCATION_PERMISSION:
                 if (grantResults.length > 0 &&
-                        grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                        grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     startLocationUpdate();
                 } else {
                     showSnackBarPermission("Для работы приложения необходимы разрешения");
@@ -171,26 +177,33 @@ public class MapYandexView extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
 
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
         if (id == android.R.id.home) {
             drawerLayout.openDrawer(GravityCompat.START);
         } else if (id == R.id.roadMap) {
             if (!isRoadMap) {
                 isRoadMap = true;
+                isRoadUser = "YES";
+                DataManager.getInstance().getPreferenceManager().saveIsRoad(isRoadUser);
+                showDialog(ConstantManager.DIALOG_PATH_START
+                );
             } else {
                 isRoadMap = false;
+                DataManager.getInstance().getPreferenceManager().saveSizeCoordinats(listCoordinatsDefaultUser.size());
                 showDialog(ConstantManager.DIALOG_PATH_DEFAULT_USER);
 
             }
+
         } else if (id == R.id.settings) {
             presenter.openSettings();
-        }
 
-        return super.onOptionsItemSelected(item);
+        }
+        return true;
     }
+
 
     private void saveDefaultPathUser() {
         PreferenceManager preferenceManager = DataManager.getInstance().getPreferenceManager();
@@ -229,6 +242,8 @@ public class MapYandexView extends AppCompatActivity {
         coordinatorLayout = findViewById(R.id.coordinator_main_layout);
         drawerLayout = findViewById(R.id.drawerLayoutMain);
         mapView = findViewById(R.id.mapView);
+        navigationView = findViewById(R.id.navigationView);
+        navigationView.setNavigationItemSelectedListener(this);
         presenter = new MapPresenter();
         presenter.attachView(MapYandexView.this);
 
@@ -290,7 +305,7 @@ public class MapYandexView extends AppCompatActivity {
     }
 
     protected Dialog onCreateDialog(int id) {
-        if (id == ConstantManager.DIALOG_SOS_EXIT) {
+        if (id == ConstantManager.DIALOG_SOS_EXIT || id == ConstantManager.DIALOG_PATH_SOS) {
             AlertDialog.Builder adb = new AlertDialog.Builder(MapYandexView.this);
             adb.setTitle("Послать сигнал SOS?");
             adb.setPositiveButton(R.string.yes_add_contact, new DialogInterface.OnClickListener() {
@@ -319,6 +334,17 @@ public class MapYandexView extends AppCompatActivity {
             });
 
             adb.setNegativeButton(R.string.cancel_add_contact, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            return adb.create();
+        } else if (id == ConstantManager.DIALOG_PATH_START) {
+            AlertDialog.Builder adb = new AlertDialog.Builder(MapYandexView.this);
+            adb.setTitle("Запись обчного пути");
+            adb.setPositiveButton(R.string.yes_add_contact, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.cancel();
@@ -431,9 +457,11 @@ public class MapYandexView extends AppCompatActivity {
             Point currentPoint = new Point(currentLocation.getLatitude(), currentLocation.getLongitude());
             double currentLatitude = currentPoint.getLatitude();
             double currentLongitude = currentPoint.getLongitude();
-            if (isRoadMap) {
+            if (isRoadMap && isRoadUser.equals("YES")) {
+                System.out.println("save");
                 listCoordinatsDefaultUser.add(Arrays.<Double>asList(currentLatitude, currentLongitude));
-            } else {
+            } else if(!isRoadUser.equals("NO")) {
+                System.out.println("equals");
                 equalsCoordiants(currentLatitude, currentLongitude);
             }
             presenter.loadYandexMap(currentPoint);
@@ -443,7 +471,60 @@ public class MapYandexView extends AppCompatActivity {
 
 
     private void equalsCoordiants(double currentLatitude, double currentLongitude) {
+        PreferenceManager currentPreferenceManager = DataManager.getInstance().getPreferenceManager();
+        int size = currentPreferenceManager.loadSizeCoordinats();
+        System.out.println(size);
+        Random random = new Random();
+        int position = random.nextInt(size)+1;
+        List<Double> coords = currentPreferenceManager.loadDefaultCoordinatsUser(position);
+        double latitude = coords.get(0);
+        double longitude = coords.get(1);
+        if (!equalsDouble(latitude, longitude, currentLatitude, currentLongitude)) {
+            showDialog(ConstantManager.DIALOG_PATH_SOS);
+            sendNotification();
+        }
+    }
 
+    private boolean equalsDouble(double firstLat, double firstLon, double secondLat, double secondLon) {
+        final double r = 6371;
+        double sin1 = Math.sin((firstLat - secondLat) / 2);
+        double sin2 = Math.sin((firstLon - secondLon) / 2);
+        double result = 2 * r * Math.asin(Math.sqrt(sin1 * sin1 + sin2 * sin2 * Math.cos(firstLat) * Math.cos(secondLat)));
+        System.out.println(result);
+        if (result > 50) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private void sendNotification() {
+
+        Intent trueResultIntent = new Intent(this, MapYandexView.class);
+        trueResultIntent.putExtra(ConstantManager.CONDITION_USER_FROM_DIALOG, true);
+        PendingIntent trueResultPendingIntent = PendingIntent.getActivity(this, 0, trueResultIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent falseResultIntent = new Intent(this, MapYandexView.class);
+        falseResultIntent.putExtra(ConstantManager.CONDITION_USER_FROM_DIALOG, false);
+        PendingIntent falseResultPendingIntent = PendingIntent.getActivity(this, 0, falseResultIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationManager notificationManager = (NotificationManager)
+                getSystemService(NOTIFICATION_SERVICE);
+        String CHANNEL_ID = "my_channel";
+        int NOTIFICATIONS_ID = 1;
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(),
+                CHANNEL_ID)
+                .setContentTitle("Уведовлемение")
+                .setContentText("С вами все в порядке?")
+                .setVibrate(new long[]{0, 2000, 1100, 1000})
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .addAction(R.drawable.ic_baseline_check_24, "Все хорошо", trueResultPendingIntent)
+                .addAction(R.drawable.ic_baseline_close_24, "Нет", falseResultPendingIntent);
+
+        // запускаем увкдовлемение
+        notificationManager.notify(NOTIFICATIONS_ID, builder.build());
     }
 
 

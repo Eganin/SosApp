@@ -39,7 +39,7 @@ public class MapPresenter {
     public void loadYandexMap(Point currentLocation) {
         try {
             view.mapView.getMap().move(
-                    new CameraPosition(currentLocation, 11.0f, 0.0f, 0.0f),
+                    new CameraPosition(currentLocation, 17.0f, 0.0f, 0.0f),
                     new Animation(Animation.Type.SMOOTH, 0),
                     null
             );
