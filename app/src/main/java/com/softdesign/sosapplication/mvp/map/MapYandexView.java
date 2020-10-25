@@ -473,15 +473,24 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
     private void equalsCoordiants(double currentLatitude, double currentLongitude) {
         PreferenceManager currentPreferenceManager = DataManager.getInstance().getPreferenceManager();
         int size = currentPreferenceManager.loadSizeCoordinats();
-        System.out.println(size);
         Random random = new Random();
         int position = random.nextInt(size)+1;
         List<Double> coords = currentPreferenceManager.loadDefaultCoordinatsUser(position);
         double latitude = coords.get(0);
         double longitude = coords.get(1);
         if (!equalsDouble(latitude, longitude, currentLatitude, currentLongitude)) {
-            showDialog(ConstantManager.DIALOG_PATH_SOS);
-            sendNotification();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        sendNotification();
+                        Thread.sleep(10000);
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
         }
     }
 
@@ -490,7 +499,6 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
         double sin1 = Math.sin((firstLat - secondLat) / 2);
         double sin2 = Math.sin((firstLon - secondLon) / 2);
         double result = 2 * r * Math.asin(Math.sqrt(sin1 * sin1 + sin2 * sin2 * Math.cos(firstLat) * Math.cos(secondLat)));
-        System.out.println(result);
         if (result > 50) {
             return false;
         } else {

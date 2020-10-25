@@ -23,8 +23,6 @@ public class AcelerometrService extends Service {
 
     private SensorManager sensorManager;
     private Sensor sensorAccel;
-    private Sensor sensorLinAccel;
-    private Sensor sensorGravity;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -34,20 +32,15 @@ public class AcelerometrService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
         // получаем доступ ко всем сепвисам-датчикам
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         // получаем доступ к определенным датчикам
         sensorAccel = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        sensorLinAccel = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        sensorGravity = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
 
         /*
         регистрируем прослушиватель на датчикики
          */
         sensorManager.registerListener(listener, sensorAccel, SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(listener, sensorLinAccel, SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(listener, sensorGravity, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -116,4 +109,6 @@ public class AcelerometrService extends Service {
         // запускаем увкдовлемение
         notificationManager.notify(NOTIFICATIONS_ID, builder.build());
     }
+
+
 }

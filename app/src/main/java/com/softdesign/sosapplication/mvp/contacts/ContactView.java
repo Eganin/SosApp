@@ -20,7 +20,6 @@ import com.google.android.material.snackbar.Snackbar;
 import com.softdesign.sosapplication.R;
 import com.softdesign.sosapplication.utils.adapters.ContactAdapter;
 import com.softdesign.sosapplication.utils.common.ConstantManager;
-import com.softdesign.sosapplication.utils.managers.DataManager;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,7 +37,7 @@ public class ContactView extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.contact_view);
-        setTitle("Котакты");
+        setTitle("Контакты");
         init();
     }
 
@@ -49,6 +48,12 @@ public class ContactView extends AppCompatActivity {
 
         Set<String> contacts = getContacts();
         initRecyclerView(contacts);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        presenter.detachView();
     }
 
     @Override
@@ -70,7 +75,7 @@ public class ContactView extends AppCompatActivity {
     private void initRecyclerView(Set<String> contacts) {
         recyclerView = findViewById(R.id.contactsRecyclerView);
         recyclerView.setHasFixedSize(true);
-        adapter = new ContactAdapter(contacts , getApplicationContext(),ContactView.this);
+        adapter = new ContactAdapter(contacts, getApplicationContext(), ContactView.this);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(layoutManager);

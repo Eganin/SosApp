@@ -1,6 +1,5 @@
 package com.softdesign.sosapplication.mvp.map;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Settings;
@@ -40,7 +39,7 @@ public class MapPresenter {
         try {
             view.mapView.getMap().move(
                     new CameraPosition(currentLocation, 17.0f, 0.0f, 0.0f),
-                    new Animation(Animation.Type.SMOOTH, 0),
+                    new Animation(Animation.Type.SMOOTH, 2),
                     null
             );
             final CameraListener cameraListener = new CameraListener() {
