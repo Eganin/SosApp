@@ -1,15 +1,18 @@
 package com.softdesign.sosapplication.utils.services;
 
+import android.Manifest;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.softdesign.sosapplication.R;
@@ -108,6 +111,8 @@ public class AcelerometrService extends Service {
 
         // запускаем увкдовлемение
         notificationManager.notify(NOTIFICATIONS_ID, builder.build());
+
+
     }
 
 

@@ -1,13 +1,18 @@
 package com.softdesign.sosapplication.mvp.map;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Settings;
 import android.telephony.SmsManager;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
 
+import com.softdesign.sosapplication.R;
 import com.softdesign.sosapplication.mvp.contacts.ContactView;
+import com.softdesign.sosapplication.utils.common.ConstantManager;
 import com.softdesign.sosapplication.utils.managers.DataManager;
 import com.softdesign.sosapplication.utils.managers.PreferenceManager;
 import com.yandex.mapkit.Animation;
@@ -17,6 +22,9 @@ import com.yandex.mapkit.map.CameraListener;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.CameraUpdateSource;
 import com.yandex.mapkit.map.Map;
+
+import java.util.List;
+import java.util.Random;
 
 
 public class MapPresenter {
@@ -86,6 +94,7 @@ public class MapPresenter {
         }
 
     }
+
 
 }
 

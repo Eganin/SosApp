@@ -85,7 +85,17 @@ public class PreferenceManager {
     }
 
     public String loadIsRoad() {
-        return sharedPreferences.getString(ConstantManager.SAVE_IS_ROAD , "NO");
+        return sharedPreferences.getString(ConstantManager.SAVE_IS_ROAD, "NO");
 
+    }
+
+    public void savePeriodicityMinutesNotifications(int minutes) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(ConstantManager.SAVE_PEREDIOCITY_NOTIFICATIONS, minutes);
+        editor.apply();
+    }
+
+    public int loadPeriodicityMinutesNotifications() {
+        return sharedPreferences.getInt(ConstantManager.SAVE_PEREDIOCITY_NOTIFICATIONS, 0);
     }
 }

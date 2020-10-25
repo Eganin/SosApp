@@ -50,11 +50,7 @@ public class ContactView extends AppCompatActivity {
         initRecyclerView(contacts);
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        presenter.detachView();
-    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,

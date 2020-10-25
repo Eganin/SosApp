@@ -13,9 +13,11 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -52,6 +54,7 @@ import com.yandex.mapkit.mapview.MapView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -78,6 +81,9 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
     private String isRoadUser = DataManager.getInstance().getPreferenceManager().loadIsRoad();
 
     private List<List<Double>> listCoordinatsDefaultUser = new ArrayList<>();
+
+    private static Date date;
+    ;
 
 
     @Override
@@ -163,12 +169,10 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
             case ConstantManager.CHECK_SETTINGS_CODE:
                 switch (resultCode) {
                     case Activity.RESULT_OK:
-                        Log.d("MainActivity", "User agreed permission");
                         startLocationUpdate();
                         break;
 
                     case Activity.RESULT_CANCELED:
-                        Log.d("MainActivity", "User not agreed permission");
                         updateLocationUI();
                         break;
                 }
@@ -200,6 +204,9 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
         } else if (id == R.id.settings) {
             presenter.openSettings();
 
+        } else if (id == R.id.perediocNotification) {
+            System.out.println("-------------------------------------------");
+            showDialog(ConstantManager.DIALOG_TIME_MINUTES_NOTIFICATION);
         }
         return true;
     }
@@ -246,7 +253,7 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
         navigationView.setNavigationItemSelectedListener(this);
         presenter = new MapPresenter();
         presenter.attachView(MapYandexView.this);
-
+        date = new Date();
         viewMap();
     }
 
@@ -345,6 +352,29 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
             AlertDialog.Builder adb = new AlertDialog.Builder(MapYandexView.this);
             adb.setTitle("Запись обчного пути");
             adb.setPositiveButton(R.string.yes_add_contact, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            return adb.create();
+        } else if (id == ConstantManager.DIALOG_TIME_MINUTES_NOTIFICATION) {
+            LayoutInflater inflater = LayoutInflater.from(this);
+            View promt = inflater.inflate(R.layout.promt, null);
+
+            AlertDialog.Builder adb = new AlertDialog.Builder(MapYandexView.this);
+            adb.setView(promt);
+            final EditText editText = promt.findViewById(R.id.edit_text_time);
+            adb.setPositiveButton(R.string.yes_add_contact, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    int resultMinutes = Integer.parseInt(editText.getText().toString());
+                    DataManager.getInstance().getPreferenceManager().savePeriodicityMinutesNotifications(resultMinutes);
+                }
+            });
+
+            adb.setNegativeButton(R.string.cancel_add_contact, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.cancel();
@@ -460,7 +490,7 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
             if (isRoadMap && isRoadUser.equals("YES")) {
                 System.out.println("save");
                 listCoordinatsDefaultUser.add(Arrays.<Double>asList(currentLatitude, currentLongitude));
-            } else if(!isRoadUser.equals("NO")) {
+            } else if (!isRoadUser.equals("NO")) {
                 System.out.println("equals");
                 equalsCoordiants(currentLatitude, currentLongitude);
             }
@@ -474,23 +504,13 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
         PreferenceManager currentPreferenceManager = DataManager.getInstance().getPreferenceManager();
         int size = currentPreferenceManager.loadSizeCoordinats();
         Random random = new Random();
-        int position = random.nextInt(size)+1;
+        int position = random.nextInt(size) + 1;
         List<Double> coords = currentPreferenceManager.loadDefaultCoordinatsUser(position);
         double latitude = coords.get(0);
         double longitude = coords.get(1);
         if (!equalsDouble(latitude, longitude, currentLatitude, currentLongitude)) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        sendNotification();
-                        Thread.sleep(10000);
+            repeatNotification(date);
 
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
         }
     }
 
@@ -533,6 +553,18 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
 
         // запускаем увкдовлемение
         notificationManager.notify(NOTIFICATIONS_ID, builder.build());
+    }
+
+    private void repeatNotification(Date dateNew) {
+        if ((new Date().getMinutes() - dateNew.getMinutes()) >= DataManager.getInstance()
+                .getPreferenceManager().loadPeriodicityMinutesNotifications()) {
+            sendNotification();
+            date = new Date();
+        }
+    }
+
+    private void sendSosSignal(Date date) {
+
     }
 
 

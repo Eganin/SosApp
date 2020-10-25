@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/roadMap"
             android:checkable="true"
             android:icon="@drawable/ic_baseline_location_on_24"
-            android:title="@string/road_map_text"/>
+            android:title="@string/road_map_text" />
         <item
             android:id="@+id/settings"
             android:icon="@drawable/ic_baseline_settings_24"
-            android:title="@string/settings_text_menu"/>
+            android:title="@string/settings_text_menu" />
+
+        <item
+            android:id="@+id/perediocNotification"
+            android:icon="@drawable/ic_baseline_timer_24"
+            android:title="@string/notification_peredioc" />
     </group>
 </menu>

@@ -14,4 +14,7 @@
     <string name="test_email">egorzaharin12@gmail.com</string>
     <string name="road_map_text">Проложить путь</string>
     <string name="settings_text_menu">Настройки</string>
+    <string name="notification_peredioc">Переодичность отправки оповещений</string>
+    <string name="minutes_in_text">В минутах</string>
+    <string name="notification_query">С какой переодичностью посылать опопвещения?</string>
 </resources>
