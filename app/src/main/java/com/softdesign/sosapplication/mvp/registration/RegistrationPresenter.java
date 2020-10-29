@@ -4,6 +4,8 @@ import android.content.Intent;
 
 import com.softdesign.sosapplication.mvp.auth.AuthView;
 import com.softdesign.sosapplication.mvp.map.MapYandexView;
+import com.softdesign.sosapplication.utils.network.AuthUser;
+import com.softdesign.sosapplication.utils.network.RegistrationUser;
 
 public class RegistrationPresenter {
 
@@ -30,6 +32,9 @@ public class RegistrationPresenter {
 
     public void handlerRegistrationButton() {
         Intent intent = new Intent(view, MapYandexView.class);
-        view.startActivity(intent);
+        String[] info = view.infoRegistrationUser();
+        RegistrationUser registrationUser = new RegistrationUser(info[0] , info[1] , info[2], view.getApplicationContext());
+        registrationUser.registrationUser();
+
     }
 }

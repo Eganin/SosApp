@@ -74,7 +74,7 @@
                         android:enabled="true"
                         android:focusable="true"
                         android:hint="@string/name_user_registration_text"
-                        android:inputType="phone"
+                        android:inputType="text"
                         android:textColor="@color/black"
                         android:textColorHint="@color/grey" />
 
@@ -94,7 +94,7 @@
                         android:enabled="true"
                         android:focusable="true"
                         android:hint="@string/sign_in_email"
-                        android:inputType="phone"
+                        android:inputType="textEmailAddress"
                         android:textColor="@color/black"
                         android:textColorHint="@color/grey" />
 
@@ -114,7 +114,7 @@
                         android:enabled="true"
                         android:focusable="true"
                         android:hint="@string/sign_in_password"
-                        android:inputType="phone"
+                        android:inputType="textPassword"
                         android:textColor="@color/black"
                         android:textColorHint="@color/grey" />
 

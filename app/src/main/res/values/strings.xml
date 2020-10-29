@@ -17,4 +17,5 @@
     <string name="notification_peredioc">Переодичность отправки оповещений</string>
     <string name="minutes_in_text">В минутах</string>
     <string name="notification_query">С какой переодичностью посылать опопвещения?</string>
+    <string name="user_name_auth">Имя пользователя</string>
 </resources>

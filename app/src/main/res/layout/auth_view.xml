@@ -66,15 +66,15 @@
                     android:layout_marginTop="@dimen/spacing_medium_32">
 
                     <EditText
-                        android:id="@+id/signInEmail"
+                        android:id="@+id/signInName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/spacing_medium_32"
                         android:layout_marginRight="@dimen/spacing_medium_32"
                         android:enabled="true"
                         android:focusable="true"
-                        android:hint="@string/sign_in_email"
-                        android:inputType="phone"
+                        android:hint="@string/user_name_auth"
+                        android:inputType="text"
                         android:textColor="@color/black"
                         android:textColorHint="@color/grey" />
 
@@ -94,7 +94,7 @@
                         android:enabled="true"
                         android:focusable="true"
                         android:hint="@string/sign_in_password"
-                        android:inputType="phone"
+                        android:inputType="textPassword"
                         android:textColor="@color/black"
                         android:textColorHint="@color/grey" />
 
