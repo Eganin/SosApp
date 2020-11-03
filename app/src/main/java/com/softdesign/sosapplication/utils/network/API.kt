@@ -13,11 +13,11 @@ class API {
     interface APIService {
 
         @Headers(value = ["Content-type: application/json"])
-        @POST("/login/{user}")
-        fun authUser(@Path(value = "user") user: String , @Body body: JsonObject): Call<ResponseBody>
+        @POST("/login")
+        fun authUser(@Body body: JsonObject): Call<ResponseBody>
 
         @Headers(value = ["Content-type: application/json"])
-        @POST("/login")
+        @POST("/registration")
         fun registrationUser(@Body body: JsonObject): Call<ResponseBody>
     }
 

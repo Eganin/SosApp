@@ -12,6 +12,7 @@
 
     <application
         android:usesCleartextTraffic="true"
+        android:required="false"
         android:name=".utils.common.Application"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

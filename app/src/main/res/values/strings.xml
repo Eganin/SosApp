@@ -18,4 +18,5 @@
     <string name="minutes_in_text">В минутах</string>
     <string name="notification_query">С какой переодичностью посылать опопвещения?</string>
     <string name="user_name_auth">Имя пользователя</string>
+    <string name="registration_number_user">Номер телефона</string>
 </resources>

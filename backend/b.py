@@ -1,12 +1,17 @@
 from flask import Flask, request, session, g, redirect, url_for, jsonify
 import sqlite3 as sq
 import os
+from OpenSSL import SSL
+
+context = SSL.Context(SSL.SSLv23_METHOD)
+context.use_privatekey_file('web.key')
+context.use_certificate_file('web.crt')
 
 DATABASE = 'C:\\Users\\Eganin\\AndroidStudioProjects\\TestProjectSchool\\SosApplication\\backend\\template\\ssdetec.db'
 SECRET_KEY = 'hzzachem'
 
-app = Flask(__name__)
-app.config.from_object(__name__)
+app = Flask(name)
+app.config.from_object(name)
 
 app.config.update(DATABASE=DATABASE)
 
@@ -36,10 +41,12 @@ def hello_user():
         json = request.get_json()
         print(json)
         if json['name'] != cur.execute("SELECT INTO users (name) WHERE name = ?", json["name"]):
-
+            conn.commit()
+            conn.close()
             return "false"
         elif json['password'] != cur.execute("SELECT INTO users (password) WHERE password = ?", json["password"]):
-
+            cur.commit()
+            cur.close()
             return "false"
         else:
             return "true"
@@ -65,5 +72,6 @@ def close_db(error):
     if hasattr(g, 'ssdetec.db'):
         g.sqlite_db.close()
 
-if __name__ == '__main__':
-    app.run(host="25.72.37.220")
+if __name__ == "__main__":
+    context = ('web.crt', 'web.key')
+    app.run(host="25.72.37.220", ssl_context=context)

@@ -120,6 +120,26 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    >
+
+                    <EditText
+                        android:id="@+id/registrationNumberUser"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/spacing_medium_32"
+                        android:layout_marginRight="@dimen/spacing_medium_32"
+                        android:enabled="true"
+                        android:focusable="true"
+                        android:hint="@string/registration_number_user"
+                        android:inputType="number"
+                        android:textColor="@color/black"
+                        android:textColorHint="@color/grey" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
                 <Button
                     android:id="@+id/registrationButton"
                     android:layout_width="150dp"

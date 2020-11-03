@@ -33,7 +33,7 @@ public class RegistrationPresenter {
     public void handlerRegistrationButton() {
         Intent intent = new Intent(view, MapYandexView.class);
         String[] info = view.infoRegistrationUser();
-        RegistrationUser registrationUser = new RegistrationUser(info[0] , info[1] , info[2], view.getApplicationContext());
+        RegistrationUser registrationUser = new RegistrationUser(info[0] , info[1] , info[2],info[3], view.getApplicationContext());
         registrationUser.registrationUser();
 
     }
