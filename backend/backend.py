@@ -31,39 +31,44 @@ def get_db():
 @app.route('/login', methods=["POST"])
 def hello_user():
     try:
+
         conn = sq.connect(DATABASE)
         cur = conn.cursor()
-        json = request.get_json()
-        print(json)
-        if json['name'] != cur.execute("SELECT INTO users (name) WHERE name = ?", json["name"]):
+        with conn:
+            json = request.get_json()
+            if json["name"] != cur.execute("SELECT * FROM users WHERE name = ?", (json["name"],)).fetchall()[0][1] or \
+                    json["password"] != cur.execute("SELECT * FROM users WHERE password = ?", (json["password"],)).fetchall()[0][2]:
 
-            return "false"
-        elif json['password'] != cur.execute("SELECT INTO users (password) WHERE password = ?", json["password"]):
-
-            return "false"
-        else:
-            return "true"
+                return jsonify({"server_answer": "false"})
+            else:
+                return jsonify({"server_answer": "true"})
     except Exception as e:
-        return "false"
+        print(e)
+        return jsonify({"server_answer": "false"})
 
 
 # POST
 @app.route('/registration', methods=['POST'])
 def get_text_prediction():
-    conn = sq.connect(DATABASE)
-    cur = conn.cursor()
-    json = request.get_json()
-    print(json)
-    cur.execute("INSERT INTO users (name,password,phone_user,email) VALUES (?,?,?,?) ",
-                (json["name"], json["password"], json["number"], json["email"]))
-    conn.commit()
-    conn.close()
-    return "true"
+    try:
+        conn = sq.connect(DATABASE)
+        cur = conn.cursor()
+        with conn:
+            json = request.get_json()
+            cur.execute("INSERT INTO users (name,password,phone_user,email) VALUES (?,?,?,?) ",
+                        (json["name"], json["password"], json["number"], json["email"]))
+            conn.commit()
+            return jsonify({"server_answer": "true"})
+
+    except Exception as e:
+        print(e)
+        return jsonify({"server_answer": "false"})
 
 
 def close_db(error):
     if hasattr(g, 'ssdetec.db'):
         g.sqlite_db.close()
+
 
 if __name__ == '__main__':
     app.run(host="25.72.37.220")
