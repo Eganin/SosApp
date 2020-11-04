@@ -8,6 +8,7 @@ android {
     buildToolsVersion "30.0.2"
 
     defaultConfig {
+        multiDexEnabled true
         applicationId "com.softdesign.sosapplication"
         minSdkVersion 16
         targetSdkVersion 30
@@ -42,5 +43,5 @@ dependencies {
     implementation 'com.yandex.android:transport:3.5.0'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
-
+    implementation 'com.beust:klaxon:5.0.1'
 }

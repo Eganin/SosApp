@@ -2,8 +2,8 @@ package com.softdesign.sosapplication.utils.network
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.widget.Toast
+import com.beust.klaxon.Klaxon
 import com.google.gson.JsonObject
 import com.softdesign.sosapplication.mvp.map.MapYandexView
 import okhttp3.ResponseBody
@@ -33,10 +33,11 @@ class RegistrationUser(val name: String,
                     }
 
                     override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-
                         try {
-                            Log.d("registration",response.body()?.string()!!.toBoolean().toString())
-                            if (response.body()?.string()!!.toBoolean()) {
+                            val result = Klaxon().parse<ServerAnswer>(response.body()?.string()!!)
+                            println(result?.server_answer == "true")
+                            println(result?.server_answer)
+                            if (result?.server_answer == "true") {
                                 Toast.makeText(context, "Вы успешно зарегистрированы",
                                         Toast.LENGTH_LONG).show()
                                 val intent = Intent(context, MapYandexView::class.java)
@@ -45,16 +46,11 @@ class RegistrationUser(val name: String,
                             } else {
                                 Toast.makeText(context, "Ошибка сервера вы не зарегистрированы",
                                         Toast.LENGTH_LONG).show()
-                                val intent = Intent(context, MapYandexView::class.java)
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                context.startActivity(intent)
                             }
                         } catch (e: KotlinNullPointerException) {
                             Toast.makeText(context, "Ошибка сервера вы не зарегистрированы",
                                     Toast.LENGTH_LONG).show()
-                            val intent = Intent(context, MapYandexView::class.java)
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(intent)
+                            e.printStackTrace()
                         }
                     }
                 })
