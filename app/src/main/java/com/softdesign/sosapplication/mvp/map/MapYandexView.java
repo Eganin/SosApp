@@ -62,6 +62,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+import kotlin.reflect.jvm.internal.impl.load.java.Constant;
+
 
 public class MapYandexView extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -111,7 +113,7 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
     }
 
     @Override
-    protected void onRestart(){
+    protected void onRestart() {
         super.onRestart();
         restartUI();
     }
@@ -135,7 +137,7 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
     }
 
     @Override
-    protected void onDestroy(){
+    protected void onDestroy() {
         super.onDestroy();
         destroyUI();
     }
@@ -192,29 +194,39 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            drawerLayout.openDrawer(GravityCompat.START);
-        } else if (id == R.id.roadMap) {
-            if (!isRoadMap) {
-                isRoadMap = true;
-                isRoadUser = "YES";
-                DataManager.getInstance().getPreferenceManager().saveIsRoad(isRoadUser);
-                showDialog(ConstantManager.DIALOG_PATH_START
-                );
-            } else {
-                isRoadMap = false;
-                DataManager.getInstance().getPreferenceManager().saveSizeCoordinats(listCoordinatsDefaultUser.size());
-                showDialog(ConstantManager.DIALOG_PATH_DEFAULT_USER);
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                drawerLayout.openDrawer(GravityCompat.START);
+                break;
 
-            }
+            case R.id.roadMap:
+                if (!isRoadMap) {
+                    isRoadMap = true;
+                    isRoadUser = "YES";
+                    DataManager.getInstance().getPreferenceManager().saveIsRoad(isRoadUser);
+                    showDialog(ConstantManager.DIALOG_PATH_START
+                    );
+                } else {
+                    isRoadMap = false;
+                    DataManager.getInstance().getPreferenceManager().saveSizeCoordinats(listCoordinatsDefaultUser.size());
+                    showDialog(ConstantManager.DIALOG_PATH_DEFAULT_USER);
 
-        } else if (id == R.id.settings) {
-            presenter.openSettings();
+                }
+                break;
 
-        } else if (id == R.id.perediocNotification) {
-            showDialog(ConstantManager.DIALOG_TIME_MINUTES_NOTIFICATION);
+            case R.id.settings:
+                presenter.openSettings();
+                break;
+
+            case R.id.perediocNotification:
+                showDialog(ConstantManager.DIALOG_TIME_MINUTES_NOTIFICATION);
+                break;
+
+            case R.id.time_sos_signal_menu:
+                showDialog(ConstantManager.DIALOG_TIME_SOS_SIGNAL_FROM_SERVICE);
+                break;
         }
+
         return true;
     }
 
@@ -321,18 +333,19 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
     @Override
     protected Dialog onCreateDialog(int id) {
         if (id == ConstantManager.DIALOG_SOS_EXIT || id == ConstantManager.DIALOG_PATH_SOS) {
-            AlertDialog.Builder adb = new AlertDialog.Builder(MapYandexView.this);
-            final CountDownTimer timer = new CountDownTimer(300000,1000) {
+            final AlertDialog.Builder adb = new AlertDialog.Builder(MapYandexView.this);
+            long timeSeconds = DataManager.getInstance().getPreferenceManager().loadMinutesSendSignalSOS();
+            final CountDownTimer timer = new CountDownTimer(timeSeconds*60000, 1000) {
                 @Override
                 public void onTick(long millisUntilFinished) {
-                    System.out.println(millisUntilFinished);
                 }
 
                 @Override
                 public void onFinish() {
-                    try{
+                    try {
                         presenter.sosMailingContacts(currentLocation.getLatitude(), currentLocation.getLongitude());
-                    }catch (NullPointerException e ){
+                        adb.create().cancel();
+                    } catch (NullPointerException e) {
                         e.printStackTrace();
                     }
                 }
@@ -342,9 +355,9 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     timer.cancel();
-                    try{
+                    try {
                         presenter.sosMailingContacts(currentLocation.getLatitude(), currentLocation.getLongitude());
-                    }catch (NullPointerException e ){
+                    } catch (NullPointerException e) {
                         e.printStackTrace();
                     }
 
@@ -354,6 +367,7 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
             adb.setNegativeButton(R.string.cancel_add_contact, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    timer.cancel();
                     dialog.cancel();
                 }
             });
@@ -400,6 +414,29 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
                 public void onClick(DialogInterface dialog, int which) {
                     int resultMinutes = Integer.parseInt(editText.getText().toString());
                     DataManager.getInstance().getPreferenceManager().savePeriodicityMinutesNotifications(resultMinutes);
+                }
+            });
+
+            adb.setNegativeButton(R.string.cancel_add_contact, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            return adb.create();
+        }else if(id == ConstantManager.DIALOG_TIME_SOS_SIGNAL_FROM_SERVICE){
+            LayoutInflater infalter = LayoutInflater.from(this);
+            View promtDialog = infalter.inflate(R.layout.promt_sos_signal,null);
+
+            AlertDialog.Builder adb = new AlertDialog.Builder(MapYandexView.this);
+            adb.setView(promtDialog);
+            final EditText editText = promtDialog.findViewById(R.id.edit_text_dialog_sos);
+            adb.setPositiveButton(R.string.yes_add_contact, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    int resultMinutes = Integer.parseInt(editText.getText().toString());
+                    DataManager.getInstance().getPreferenceManager().saveMinutesSendSignalSOS(resultMinutes);
                 }
             });
 
@@ -516,13 +553,9 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
             Point currentPoint = new Point(currentLocation.getLatitude(), currentLocation.getLongitude());
             double currentLatitude = currentPoint.getLatitude();
             double currentLongitude = currentPoint.getLongitude();
-            System.out.println(currentLatitude);
-            System.out.println(currentLongitude);
             if (isRoadMap && isRoadUser.equals("YES")) {
-                System.out.println("save");
                 listCoordinatsDefaultUser.add(Arrays.<Double>asList(currentLatitude, currentLongitude));
             } else if (!isRoadUser.equals("NO")) {
-                System.out.println("equals");
                 equalsCoordiants(currentLatitude, currentLongitude);
             }
             presenter.loadYandexMap(currentPoint);
@@ -582,7 +615,7 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
                 .addAction(R.drawable.ic_baseline_check_24, "Все хорошо", trueResultPendingIntent)
                 .addAction(R.drawable.ic_baseline_close_24, "Нет", falseResultPendingIntent);
 
-        showDialog(ConstantManager.DIALOG_SOS_EXIT);
+        AcelerometrService.startTimer();
         // запускаем увкдовлемение
         notificationManager.notify(NOTIFICATIONS_ID, builder.build());
     }
@@ -619,7 +652,7 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
 
     }
 
-    private void restartUI(){
+    private void restartUI() {
         presenter.attachView(MapYandexView.this);
         new Thread(new Runnable() {
             @Override
@@ -629,12 +662,12 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
         }).start();
     }
 
-    private void destroyUI(){
+    private void destroyUI() {
         mapView.onStop();
         MapKitFactory.getInstance().onStop();
     }
 
     public static List<Double> getCurrentLocation() {
-        return Arrays.asList(currentLocation.getLatitude(),currentLocation.getLongitude());
+        return Arrays.asList(currentLocation.getLatitude(), currentLocation.getLongitude());
     }
 }

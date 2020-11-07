@@ -96,6 +96,16 @@ public class PreferenceManager {
     }
 
     public int loadPeriodicityMinutesNotifications() {
-        return sharedPreferences.getInt(ConstantManager.SAVE_PEREDIOCITY_NOTIFICATIONS, 0);
+        return sharedPreferences.getInt(ConstantManager.SAVE_PEREDIOCITY_NOTIFICATIONS, 5);
+    }
+
+    public void saveMinutesSendSignalSOS(int minutes) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(ConstantManager.SAVE_TIME_SEND_SOS_SIGNAL, minutes);
+        editor.apply();
+    }
+
+    public int loadMinutesSendSignalSOS() {
+        return sharedPreferences.getInt(ConstantManager.SAVE_TIME_SEND_SOS_SIGNAL, 5);
     }
 }

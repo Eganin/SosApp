@@ -20,6 +20,7 @@ import com.softdesign.sosapplication.R;
 import com.softdesign.sosapplication.mvp.map.MapPresenter;
 import com.softdesign.sosapplication.mvp.map.MapYandexView;
 import com.softdesign.sosapplication.utils.common.ConstantManager;
+import com.softdesign.sosapplication.utils.managers.DataManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +87,7 @@ public class AcelerometrService extends Service {
         }
     };
 
-    private void sendNotification() {
+    public static void sendNotification() {
 
         Intent trueResultIntent = new Intent(this, MapYandexView.class);
         trueResultIntent.putExtra(ConstantManager.CONDITION_USER_FROM_DIALOG, true);
@@ -119,11 +120,11 @@ public class AcelerometrService extends Service {
 
     }
 
-    private void startTimer() {
-        final CountDownTimer timer = new CountDownTimer(300000, 1000) {
+    public static void startTimer() {
+        long timeSeconds = DataManager.getInstance().getPreferenceManager().loadMinutesSendSignalSOS();
+        final CountDownTimer timer = new CountDownTimer(timeSeconds * 60000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                System.out.println(millisUntilFinished);
             }
 
             @Override

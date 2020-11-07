@@ -16,5 +16,10 @@
             android:id="@+id/perediocNotification"
             android:icon="@drawable/ic_baseline_timer_24"
             android:title="@string/notification_peredioc" />
+
+        <item
+            android:id="@+id/time_sos_signal_menu"
+            android:icon="@drawable/ic_baseline_access_time_24"
+            android:title="@string/time_signal_sos"/>
     </group>
 </menu>

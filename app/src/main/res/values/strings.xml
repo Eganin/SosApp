@@ -19,4 +19,6 @@
     <string name="notification_query">С какой переодичностью посылать опопвещения?</string>
     <string name="user_name_auth">Имя пользователя</string>
     <string name="registration_number_user">Номер телефона</string>
+    <string name="time_signal_sos">Время отправки сигнала SOS</string>
+    <string name="check_signal_sos_time_dialog_text">По истечении какого времени , если вы не ответите на сообщение , посылать сигнал- SOS</string>
 </resources>
