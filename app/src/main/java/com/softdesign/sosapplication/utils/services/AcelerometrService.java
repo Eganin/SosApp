@@ -10,12 +10,14 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.softdesign.sosapplication.R;
+import com.softdesign.sosapplication.mvp.map.MapPresenter;
 import com.softdesign.sosapplication.mvp.map.MapYandexView;
 import com.softdesign.sosapplication.utils.common.ConstantManager;
 
@@ -109,10 +111,32 @@ public class AcelerometrService extends Service {
                 .addAction(R.drawable.ic_baseline_check_24, "Все хорошо", trueResultPendingIntent)
                 .addAction(R.drawable.ic_baseline_close_24, "Нет", falseResultPendingIntent);
 
+        // заапускаем таймер
+        startTimer();
         // запускаем увкдовлемение
         notificationManager.notify(NOTIFICATIONS_ID, builder.build());
 
 
+    }
+
+    private void startTimer() {
+        final CountDownTimer timer = new CountDownTimer(300000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                System.out.println(millisUntilFinished);
+            }
+
+            @Override
+            public void onFinish() {
+                try {
+                    MapPresenter presenter = new MapPresenter();
+                    List<Double> location = MapYandexView.getCurrentLocation();
+                    presenter.sosMailingContacts(location.get(0), location.get(1));
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
 

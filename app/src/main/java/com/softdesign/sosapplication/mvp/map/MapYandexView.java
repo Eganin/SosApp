@@ -12,11 +12,14 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -47,6 +50,7 @@ import com.softdesign.sosapplication.R;
 import com.softdesign.sosapplication.utils.common.ConstantManager;
 import com.softdesign.sosapplication.utils.managers.DataManager;
 import com.softdesign.sosapplication.utils.managers.PreferenceManager;
+import com.softdesign.sosapplication.utils.network.API;
 import com.softdesign.sosapplication.utils.services.AcelerometrService;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.geometry.Point;
@@ -75,7 +79,7 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
     private LocationRequest locationRequest; // дял сохранения запроса
     private LocationSettingsRequest locationSettingsRequest;
     private LocationCallback locationCallback; // для событий определения местоположения
-    private Location currentLocation; // хранение широты и долготы
+    private static Location currentLocation; // хранение широты и долготы
 
     private boolean isRoadMap;
     private String isRoadUser = DataManager.getInstance().getPreferenceManager().loadIsRoad();
@@ -103,15 +107,13 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
     @Override
     protected void onResume() {
         super.onResume();
-        presenter.attachView(MapYandexView.this);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                startLocationUpdate();
-            }
-        }).start();
+        restartUI();
+    }
 
-
+    @Override
+    protected void onRestart(){
+        super.onRestart();
+        restartUI();
     }
 
     @Override
@@ -123,13 +125,19 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
         startServices();
         getConditionUser();
         initLocationClient();
+        visibleImageCoordinats();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mapView.onStop();
-        MapKitFactory.getInstance().onStop();
+        destroyUI();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        destroyUI();
     }
 
     @Override
@@ -205,7 +213,6 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
             presenter.openSettings();
 
         } else if (id == R.id.perediocNotification) {
-            System.out.println("-------------------------------------------");
             showDialog(ConstantManager.DIALOG_TIME_MINUTES_NOTIFICATION);
         }
         return true;
@@ -311,14 +318,36 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
                 }).show();
     }
 
+    @Override
     protected Dialog onCreateDialog(int id) {
         if (id == ConstantManager.DIALOG_SOS_EXIT || id == ConstantManager.DIALOG_PATH_SOS) {
             AlertDialog.Builder adb = new AlertDialog.Builder(MapYandexView.this);
+            final CountDownTimer timer = new CountDownTimer(300000,1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    System.out.println(millisUntilFinished);
+                }
+
+                @Override
+                public void onFinish() {
+                    try{
+                        presenter.sosMailingContacts(currentLocation.getLatitude(), currentLocation.getLongitude());
+                    }catch (NullPointerException e ){
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
             adb.setTitle("Послать сигнал SOS?");
             adb.setPositiveButton(R.string.yes_add_contact, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    presenter.sosMailingContacts();
+                    timer.cancel();
+                    try{
+                        presenter.sosMailingContacts(currentLocation.getLatitude(), currentLocation.getLongitude());
+                    }catch (NullPointerException e ){
+                        e.printStackTrace();
+                    }
+
                 }
             });
 
@@ -487,6 +516,8 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
             Point currentPoint = new Point(currentLocation.getLatitude(), currentLocation.getLongitude());
             double currentLatitude = currentPoint.getLatitude();
             double currentLongitude = currentPoint.getLongitude();
+            System.out.println(currentLatitude);
+            System.out.println(currentLongitude);
             if (isRoadMap && isRoadUser.equals("YES")) {
                 System.out.println("save");
                 listCoordinatsDefaultUser.add(Arrays.<Double>asList(currentLatitude, currentLongitude));
@@ -551,6 +582,7 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
                 .addAction(R.drawable.ic_baseline_check_24, "Все хорошо", trueResultPendingIntent)
                 .addAction(R.drawable.ic_baseline_close_24, "Нет", falseResultPendingIntent);
 
+        showDialog(ConstantManager.DIALOG_SOS_EXIT);
         // запускаем увкдовлемение
         notificationManager.notify(NOTIFICATIONS_ID, builder.build());
     }
@@ -563,9 +595,46 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
         }
     }
 
+    private void visibleImageCoordinats() {
+        final ImageView imageView = findViewById(R.id.coordinat_image_view);
+        Handler handler = new Handler();
+        handler.postDelayed(
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        imageView.post(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                imageView.setVisibility(View.VISIBLE);
+
+                            }
+                        });
+                    }
+                }), 4000);
+
+    }
+
     private void sendSosSignal(Date date) {
 
     }
 
+    private void restartUI(){
+        presenter.attachView(MapYandexView.this);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                startLocationUpdate();
+            }
+        }).start();
+    }
 
+    private void destroyUI(){
+        mapView.onStop();
+        MapKitFactory.getInstance().onStop();
+    }
+
+    public static List<Double> getCurrentLocation() {
+        return Arrays.asList(currentLocation.getLatitude(),currentLocation.getLongitude());
+    }
 }

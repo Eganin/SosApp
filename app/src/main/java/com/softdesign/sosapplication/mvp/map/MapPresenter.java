@@ -76,7 +76,7 @@ public class MapPresenter {
         view.startActivity(intent);
     }
 
-    public void sosMailingContacts() {
+    public void sosMailingContacts(double latinude, double longitude) {
 
         PreferenceManager preferenceManager = DataManager.getInstance().getPreferenceManager();
         int sizeContacts = preferenceManager.loadSizeContact();
@@ -87,7 +87,8 @@ public class MapPresenter {
                 String[] info = contact.trim().split(":");
                 String name = info[0];
                 String phone = "smsto:" + info[1];
-                String message = name + "," + "я попал в беду";
+                String message = name + "," + "я попал в беду " + String.format("мои координаты : %f , %f", latinude, longitude);
+
                 SmsManager.getDefault().sendTextMessage(phone, null, message,
                         null, null);
             }

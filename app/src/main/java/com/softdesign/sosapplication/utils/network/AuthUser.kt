@@ -50,6 +50,7 @@ class AuthUser(val name: String, val password: String, val context: Context) {
                                     "Вы не вошли в систему проверьте валидность данных",
                                     Toast.LENGTH_LONG).show()
                             e.printStackTrace()
+
                         }
 
                     }
