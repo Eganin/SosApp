@@ -26,20 +26,16 @@ class AuthUser(val name: String, val password: String, val context: Context) {
                 .authUser(body = json)
                 .enqueue(object : Callback<ResponseBody> {
                     override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                        Toast.makeText(context, "Вы не вошли в систему", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Вы переключаетесь в режим оффлайн", Toast.LENGTH_LONG).show()
+                        startMapViewActivity(context = context)
                     }
 
                     override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-
                         try {
                             val result = Klaxon().parse<ServerAnswer>(response.body()?.string()!!)
-                            println(result?.server_answer == "true")
-                            println(result?.server_answer)
                             if (result?.server_answer == "true") {
                                 Toast.makeText(context, "Вы вошли", Toast.LENGTH_LONG).show()
-                                val intent = Intent(context, MapYandexView::class.java)
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                context.startActivity(intent)
+                                startMapViewActivity(context = context)
                             } else {
                                 Toast.makeText(context,
                                         "Вы не вошли в систему проверьте валидность данных",
@@ -55,5 +51,13 @@ class AuthUser(val name: String, val password: String, val context: Context) {
 
                     }
                 })
+    }
+
+    companion object {
+        fun startMapViewActivity(context: Context) {
+            val intent = Intent(context, MapYandexView::class.java)
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+        }
     }
 }

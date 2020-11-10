@@ -28,29 +28,28 @@ class RegistrationUser(val name: String,
                 .registrationUser(json)
                 .enqueue(object : Callback<ResponseBody> {
                     override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                        Toast.makeText(context, "Ошибка сервера вы не зарегистрированы",
+                        Toast.makeText(context, "Вы переводитесь в режим оффлайн",
                                 Toast.LENGTH_LONG).show()
+                        AuthUser.startMapViewActivity(context=context)
                     }
 
                     override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                         try {
                             val result = Klaxon().parse<ServerAnswer>(response.body()?.string()!!)
-                            println(result?.server_answer == "true")
-                            println(result?.server_answer)
+
                             if (result?.server_answer == "true") {
                                 Toast.makeText(context, "Вы успешно зарегистрированы",
                                         Toast.LENGTH_LONG).show()
-                                val intent = Intent(context, MapYandexView::class.java)
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                context.startActivity(intent)
+                                AuthUser.startMapViewActivity(context=context)
                             } else {
                                 Toast.makeText(context, "Ошибка сервера вы не зарегистрированы",
                                         Toast.LENGTH_LONG).show()
+
                             }
                         } catch (e: KotlinNullPointerException) {
                             Toast.makeText(context, "Ошибка сервера вы не зарегистрированы",
                                     Toast.LENGTH_LONG).show()
-                            e.printStackTrace()
+
                         }
                     }
                 })

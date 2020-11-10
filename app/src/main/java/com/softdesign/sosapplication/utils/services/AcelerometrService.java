@@ -87,7 +87,7 @@ public class AcelerometrService extends Service {
         }
     };
 
-    public static void sendNotification() {
+    public void sendNotification() {
 
         Intent trueResultIntent = new Intent(this, MapYandexView.class);
         trueResultIntent.putExtra(ConstantManager.CONDITION_USER_FROM_DIALOG, true);
@@ -142,3 +142,4 @@ public class AcelerometrService extends Service {
 
 
 }
+

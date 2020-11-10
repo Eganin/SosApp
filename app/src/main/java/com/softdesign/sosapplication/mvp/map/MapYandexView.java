@@ -89,13 +89,18 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
     private List<List<Double>> listCoordinatsDefaultUser = new ArrayList<>();
 
     private static Date date;
-    ;
+    
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MapKitFactoryInit();
+        try{
+            MapKitFactoryInit();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         setContentView(R.layout.map_view);
         init();
     }
@@ -261,7 +266,9 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
 
     private void MapKitFactoryInit() {
         MapKitFactory.setApiKey(API_KEY);
-        MapKitFactory.initialize(MapYandexView.this);
+        MapKitFactory.initialize(this);
+
+
     }
 
     private void init() {
