@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -590,6 +591,7 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
         double sin1 = Math.sin((firstLat - secondLat) / 2);
         double sin2 = Math.sin((firstLon - secondLon) / 2);
         double result = 2 * r * Math.asin(Math.sqrt(sin1 * sin1 + sin2 * sin2 * Math.cos(firstLat) * Math.cos(secondLat)));
+        Log.d("Equals",String.valueOf(result));
         if (result > 50) {
             return false;
         } else {
@@ -628,6 +630,8 @@ public class MapYandexView extends AppCompatActivity implements NavigationView.O
     }
 
     private void repeatNotification(Date dateNew) {
+        Log.d("Eguals",String.valueOf(new Date().getMinutes() - dateNew.getMinutes())+"data");
+        Log.d("Eguals",String.valueOf(DataManager.getInstance().getPreferenceManager().loadPeriodicityMinutesNotifications()));
         if ((new Date().getMinutes() - dateNew.getMinutes()) >= DataManager.getInstance()
                 .getPreferenceManager().loadPeriodicityMinutesNotifications()) {
             sendNotification();

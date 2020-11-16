@@ -32,11 +32,11 @@ public class AuthPresenter {
 
 
     public void handlerAuthButton() {
-        //Intent intent = new Intent(view, MapYandexView.class);
-        Pair<String, String> infoUser = view.infoFromUser();
-        AuthUser authUser = new AuthUser(infoUser.first.toString(), infoUser.second.toString(), view.getApplicationContext());
-        authUser.authorizationUser();
-        //view.startActivity(intent);
+        Intent intent = new Intent(view, MapYandexView.class);
+        //Pair<String, String> infoUser = view.infoFromUser();
+        //AuthUser authUser = new AuthUser(infoUser.first.toString(), infoUser.second.toString(), view.getApplicationContext());
+        //authUser.authorizationUser();
+        view.startActivity(intent);
 
     }
 }
